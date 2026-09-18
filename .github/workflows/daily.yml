@@ -1,0 +1,41 @@
+name: daily-update
+
+on:
+  schedule:
+    - cron: "0 0 * * *"   # 毎日 UTC 00:00 = JST 09:00
+  workflow_dispatch: {}     # 手動実行も可
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build (ECB為替を取得して静的生成)
+        run: |
+          node build.mjs
+
+      - uses: actions/configure-pages@v4
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build-deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
