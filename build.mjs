@@ -66,6 +66,7 @@ function render({ rates, fxDate, countries, generated }) {
                 color:var(--fg); font-size:1rem }
   #out { font-size:1.5rem; color:var(--acc); font-variant-numeric:tabular-nums; margin-top:10px }
   footer { color:var(--mut); font-size:.8rem; margin-top:36px; border-top:1px solid #262b34; padding-top:16px }
+  .xlinks a { margin-right:14px; color:var(--acc); }
 </style>
 </head>
 <body>
@@ -96,6 +97,13 @@ ${rows}
   </table>
 
   <footer>
+    <p class="xlinks">
+      <a href="https://micachi.github.io/tools/">🧰 便利ツール一覧</a>
+      <a href="https://micachi.github.io/tools/qr/">QRコード生成</a>
+      <a href="https://micachi.github.io/tools/mojicount/">文字数カウンター</a>
+      <a href="https://micachi.github.io/tools/color/">色・コントラスト検査</a>
+      <a href="https://micachi.github.io/pwgen/">パスワード一括生成</a>
+    </p>
     最終更新: ${generated} JST ・ データ: ECB Frankfurter API<br>
     本サイトは概算です。実際の料金は時期・為替変動により大きく変わります。
   </footer>
