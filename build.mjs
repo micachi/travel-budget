@@ -22,6 +22,21 @@ async function fetchRates() {
 
 const yen = (n) => Math.round(n).toLocaleString("ja-JP");
 
+// 共通ナビ（tools.wicachi.com と同一デザイン）。全ページに注入する。
+const NAV = `<nav class="nav"><div class="nav-in">
+  <span class="nav-brand">🧰 便利ツール</span>
+  <a href="https://tools.wicachi.com/">一覧</a>
+  <a href="https://tools.wicachi.com/qr/">QRコード生成</a>
+  <a href="https://tools.wicachi.com/mojicount/">文字数カウンター</a>
+  <a href="https://tools.wicachi.com/color/">色・コントラスト検査</a>
+  <a href="https://tools.wicachi.com/json/">JSON 整形・検証</a>
+  <a href="https://tools.wicachi.com/unit/">単位変換</a>
+  <a href="https://tools.wicachi.com/datecalc/">日付計算</a>
+  <a href="https://tools.wicachi.com/intunestart/">Intune スタートレイアウト</a>
+  <a href="https://micachi.github.io/pwgen/">パスワード一括生成</a>
+  <a href="https://micachi.github.io/travel-budget/" class="on" aria-current="page">旅行予算シミュレーター</a>
+</div></nav>`;
+
 function render({ rates, fxDate, countries, generated }) {
   const jpy = rates.JPY;
   const rows = countries.map((c) => {
@@ -46,6 +61,13 @@ function render({ rates, fxDate, countries, generated }) {
 <meta name="description" content="${fxDate} 時点のECB公式為替で、主要都市の1日あたり旅行予算と総額を自動計算します。毎日自動更新。">
 <style>
   :root { --bg:#0f1115; --fg:#e8eaed; --mut:#9aa0a6; --acc:#4f9cff; --card:#171a21; }
+  .nav{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.94);backdrop-filter:blur(8px);
+       border-bottom:1px solid #232a36;margin:0 0 24px}
+  .nav-in{max-width:920px;margin:0 auto;padding:11px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .nav-brand{font-weight:700;font-size:.92rem;letter-spacing:.04em;margin-right:8px;color:var(--fg)}
+  .nav a{padding:5px 11px;border-radius:8px;font-size:.85rem;color:var(--mut);transition:.15s;text-decoration:none}
+  .nav a:hover{background:#1c2330;color:var(--fg)}
+  .nav a.on{background:var(--acc);color:#08101e;font-weight:600}
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--fg);
          font-family:"Hiragino Kaku Gothic ProN","Meiryo",system-ui,sans-serif; line-height:1.7 }
@@ -70,6 +92,7 @@ function render({ rates, fxDate, countries, generated }) {
 </style>
 </head>
 <body>
+${NAV}
 <div class="wrap">
   <h1>海外旅行 予算シミュレーター</h1>
   <p class="sub">${fxDate} 時点の ECB（欧州中央銀行）公式為替で自動計算 ・ 毎日自動更新</p>
@@ -146,8 +169,14 @@ for (const c of cfg.countries) {
 <style>body{background:#0f1115;color:#e8eaed;font-family:"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;line-height:1.8}
 .wrap{max-width:720px;margin:0 auto;padding:40px 16px}h1{font-size:1.5rem}
 .big{font-size:2rem;color:#4f9cff;font-variant-numeric:tabular-nums}
-a{color:#4f9cff}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{padding:10px;border-bottom:1px solid #262b34;text-align:left}</style>
-</head><body><div class="wrap">
+a{color:#4f9cff}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{padding:10px;border-bottom:1px solid #262b34;text-align:left}
+.nav{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.94);backdrop-filter:blur(8px);border-bottom:1px solid #262b36;margin:0 0 20px}
+.nav-in{max-width:720px;margin:0 auto;padding:11px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.nav-brand{font-weight:700;font-size:.92rem;letter-spacing:.04em;margin-right:8px;color:#e8eaed}
+.nav a{padding:5px 11px;border-radius:8px;font-size:.85rem;color:#9aa0a6;text-decoration:none}
+.nav a:hover{background:#1c2330;color:#e8eaed}
+.nav a.on{background:#4f9cff;color:#08101e;font-weight:600}</style>
+</head><body>${NAV}<div class="wrap">
 <h1>${c.name} 旅行 予算の目安</h1>
 <p>${date} 時点の ECB 公式為替（1ドル = ${rates.JPY.toFixed(2)}円）で算出しています。</p>
 <p class="big">1日あたり 約${yen(daily)}円</p>
