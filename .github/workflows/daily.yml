@@ -1,11 +1,9 @@
-name: daily-update
+name: deploy
 
 on:
   push:
-    branches: [main]        # 変更時に自動デプロイ（schedule のだけで取りこぼす事故の再発防止）
-  schedule:
-    - cron: "0 0 * * *"   # 毎日 UTC 00:00 = JST 09:00 に為替を更新
-  workflow_dispatch: {}     # 手動実行も可
+    branches: [main]
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -13,27 +11,23 @@ permissions:
   id-token: write
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Build (ECB為替を取得して静的生成)
-        run: |
-          node build.mjs
-
-      - uses: actions/configure-pages@v4
-
+      # 統合済み。このリポジトリは tools.wicachi.com/travel/ への
+      # リダイレクト専用（メイン＋都市別）。
+      - name: リダイレクトページ生成
+        run: node build.mjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
-    needs: build-deploy
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
