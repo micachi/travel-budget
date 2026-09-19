@@ -24,18 +24,65 @@ const yen = (n) => Math.round(n).toLocaleString("ja-JP");
 
 // 共通ナビ（tools.wicachi.com と同一デザイン）。全ページに注入する。
 const NAV = `<nav class="nav"><div class="nav-in">
-  <span class="nav-brand">🧰 便利ツール</span>
-  <a href="https://tools.wicachi.com/">一覧</a>
-  <a href="https://tools.wicachi.com/qr/">QRコード生成</a>
-  <a href="https://tools.wicachi.com/mojicount/">文字数カウンター</a>
-  <a href="https://tools.wicachi.com/color/">色・コントラスト検査</a>
-  <a href="https://tools.wicachi.com/json/">JSON 整形・検証</a>
-  <a href="https://tools.wicachi.com/unit/">単位変換</a>
-  <a href="https://tools.wicachi.com/datecalc/">日付計算</a>
-  <a href="https://tools.wicachi.com/intunestart/">Intune スタートレイアウト</a>
-  <a href="https://micachi.github.io/pwgen/">パスワード一括生成</a>
-  <a href="https://micachi.github.io/travel-budget/" class="on" aria-current="page">旅行予算シミュレーター</a>
-</div></nav>`;
+  <a class="nav-brand" href="https://tools.wicachi.com/">🧰 便利ツール</a>
+  <div class="dd">
+    <button type="button" class="dd-btn" id="ddBtn" aria-expanded="false" aria-controls="ddMenu">ツールメニュー <span class="caret">▾</span></button>
+    <div class="dd-menu" id="ddMenu" role="menu" hidden>
+      <div class="dd-group"><span class="dd-cat">作成・生成</span>
+        <a href="https://tools.wicachi.com/qr/">QRコード生成</a>
+        <a href="https://tools.wicachi.com/intunestart/">Intune スタートレイアウト</a>
+        <a href="https://micachi.github.io/pwgen/">パスワード一括生成</a>
+      </div>
+      <div class="dd-group"><span class="dd-cat">検査・整形</span>
+        <a href="https://tools.wicachi.com/mojicount/">文字数カウンター</a>
+        <a href="https://tools.wicachi.com/color/">色・コントラスト検査</a>
+        <a href="https://tools.wicachi.com/json/">JSON 整形・検証</a>
+      </div>
+      <div class="dd-group"><span class="dd-cat">計算</span>
+        <a href="https://tools.wicachi.com/unit/">単位変換</a>
+        <a href="https://tools.wicachi.com/datecalc/">日付計算</a>
+        <a href="https://micachi.github.io/travel-budget/" class="on" aria-current="page">旅行予算シミュレーター</a>
+      </div>
+    </div>
+  </div>
+  <span class="nav-cur">旅行予算シミュレーター</span>
+</div></nav>
+<script>
+(function(){
+  var btn=document.getElementById("ddBtn"), menu=document.getElementById("ddMenu");
+  if(!btn||!menu)return;
+  var open=function(){menu.hidden=false;btn.setAttribute("aria-expanded","true");};
+  var close=function(){menu.hidden=true;btn.setAttribute("aria-expanded","false");};
+  btn.addEventListener("click",function(e){e.stopPropagation();menu.hidden?open():close();});
+  document.addEventListener("click",function(e){if(!menu.contains(e.target)&&e.target!==btn)close();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){close();btn.focus();}});
+})();
+</script>`;
+
+// 共通ナビ CSS（メイン／都市別ページで共有）
+const NAV_CSS = `
+  .nav{position:sticky;top:0;z-index:50;background:rgba(15,17,21,.95);backdrop-filter:blur(8px);
+       border-bottom:1px solid #232a36;margin:0 0 24px}
+  .nav-in{max-width:__W__px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .nav-brand{font-weight:700;font-size:.92rem;letter-spacing:.04em;color:#e8eaed;text-decoration:none;white-space:nowrap}
+  .nav-brand:hover{color:#4f9cff;text-decoration:none}
+  .nav-cur{margin-left:auto;font-size:.85rem;color:#4f9cff;font-weight:600;white-space:nowrap}
+  @media(max-width:560px){.nav-cur{display:none}}
+  .dd{position:relative}
+  .dd-btn{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:9px;
+    border:1px solid #232a36;background:#1c2330;color:#e8eaed;font-size:.86rem;cursor:pointer;font-family:inherit}
+  .dd-btn:hover{background:#242c3a;border-color:#33405a}
+  .dd-btn .caret{font-size:.7rem;opacity:.8;transition:transform .18s}
+  .dd-btn[aria-expanded="true"] .caret{transform:rotate(180deg)}
+  .dd-menu{position:absolute;top:calc(100% + 8px);left:0;z-index:60;min-width:260px;
+    background:#161b24;border:1px solid #2b333f;border-radius:12px;padding:10px;box-shadow:0 12px 32px rgba(0,0,0,.5)}
+  .dd-group{padding:6px 0}
+  .dd-group + .dd-group{border-top:1px solid #232a36}
+  .dd-cat{display:block;font-size:.7rem;color:#9aa0a6;letter-spacing:.08em;margin:0 0 4px 8px}
+  .dd-menu a{display:block;padding:7px 10px;border-radius:8px;font-size:.87rem;color:#e8eaed;text-decoration:none}
+  .dd-menu a:hover{background:#212a37;color:#4f9cff;text-decoration:none}
+  .dd-menu a.on{background:#4f9cff;color:#08101e;font-weight:600}
+  .dd-menu a.on:hover{background:#6cabff;color:#08101e}`;
 
 function render({ rates, fxDate, countries, generated }) {
   const jpy = rates.JPY;
@@ -61,13 +108,7 @@ function render({ rates, fxDate, countries, generated }) {
 <meta name="description" content="${fxDate} 時点のECB公式為替で、主要都市の1日あたり旅行予算と総額を自動計算します。毎日自動更新。">
 <style>
   :root { --bg:#0f1115; --fg:#e8eaed; --mut:#9aa0a6; --acc:#4f9cff; --card:#171a21; }
-  .nav{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.94);backdrop-filter:blur(8px);
-       border-bottom:1px solid #232a36;margin:0 0 24px}
-  .nav-in{max-width:920px;margin:0 auto;padding:11px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-  .nav-brand{font-weight:700;font-size:.92rem;letter-spacing:.04em;margin-right:8px;color:var(--fg)}
-  .nav a{padding:5px 11px;border-radius:8px;font-size:.85rem;color:var(--mut);transition:.15s;text-decoration:none}
-  .nav a:hover{background:#1c2330;color:var(--fg)}
-  .nav a.on{background:var(--acc);color:#08101e;font-weight:600}
+  ${NAV_CSS.replace("__W__", "920")}
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--fg);
          font-family:"Hiragino Kaku Gothic ProN","Meiryo",system-ui,sans-serif; line-height:1.7 }
@@ -170,12 +211,7 @@ for (const c of cfg.countries) {
 .wrap{max-width:720px;margin:0 auto;padding:40px 16px}h1{font-size:1.5rem}
 .big{font-size:2rem;color:#4f9cff;font-variant-numeric:tabular-nums}
 a{color:#4f9cff}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{padding:10px;border-bottom:1px solid #262b34;text-align:left}
-.nav{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.94);backdrop-filter:blur(8px);border-bottom:1px solid #262b36;margin:0 0 20px}
-.nav-in{max-width:720px;margin:0 auto;padding:11px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.nav-brand{font-weight:700;font-size:.92rem;letter-spacing:.04em;margin-right:8px;color:#e8eaed}
-.nav a{padding:5px 11px;border-radius:8px;font-size:.85rem;color:#9aa0a6;text-decoration:none}
-.nav a:hover{background:#1c2330;color:#e8eaed}
-.nav a.on{background:#4f9cff;color:#08101e;font-weight:600}</style>
+${NAV_CSS.replace("__W__", "720")}</style>
 </head><body>${NAV}<div class="wrap">
 <h1>${c.name} 旅行 予算の目安</h1>
 <p>${date} 時点の ECB 公式為替（1ドル = ${rates.JPY.toFixed(2)}円）で算出しています。</p>
